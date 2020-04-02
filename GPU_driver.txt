@@ -1,0 +1,34 @@
+#!/bin/bash
+
+echo -n "Enter load[l] or unload[u] GPU driver: "
+read option
+
+case $option in
+
+  unload|u)
+    echo "Begin removing NVIDIA drivers script"
+    # Stop all services and turn off persistence mode
+    sudo systemctl stop nvidia-persistenced
+    sudo nvidia-smi -pm 0
+
+    # Check if any processes are using nvidia devices and kill them
+    sudo kill -9 $(lsof -t /dev/nvidia*)
+    sleep 3s
+    # Unload nvidia drivers
+    sudo rmmod nv_peer_mem nvidia_uvm nvidia_drm nvidia_modeset nvidia
+    sleep 1s
+    ;;
+
+  load|l)
+    echo "Begin Loading NVIDIA drivers script"
+    sudo rmmod mods
+    sleep 1s
+    echo "Starting NVIDIA Persistence Mode"
+    sudo nvidia-smi -pm 1
+    sleep 1s
+    ;;
+
+  *)
+    printf  "Quit program!!\n"
+    ;;
+esac
